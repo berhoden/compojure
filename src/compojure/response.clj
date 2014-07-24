@@ -1,13 +1,18 @@
 (ns compojure.response
-  "Methods for generating Ring response maps"
-  (:use [clojure.core.incubator :only (-?>)]
-        [ring.util.response :only (response content-type)])
+  "A protocol for generating Ring response maps"
+  (:use [ring.util.response :only (response content-type)])
   (:require [clojure.java.io :as io])
   (:import [java.io File InputStream]
            [java.net URL]
            [clojure.lang APersistentMap IDeref IFn ISeq]))
 
 (defprotocol Renderable
+  "A protocol that tells Compojure how to handle the return value of routes
+  defined by GET, POST, etc.
+
+  This protocol supports rendering strings, maps, functions, refs, files, seqs,
+  input streams and URLs by default, and may be extended to cover many custom
+  types."
   (render [this request]
     "Render the object into a form suitable for the given request map."))
 

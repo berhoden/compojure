@@ -1,3 +1,23 @@
+## 1.1.8 (2014-05-11)
+
+* Fixed URL-encoding bug in routes defined within the context macro
+* Removed core.incubator dependency
+* Improved docstrings
+* Updated Clout dependency to 1.2.0
+
+## 1.1.7 (2014-05-07)
+
+* Updated Ring dependency to 1.2.2
+
+## 1.1.6 (2013-10-30)
+
+* Updated Ring dependency to 1.2.1
+* `_method` parameter made case insensitive
+
+## 1.1.5 (2013-01-13)
+
+* Updated Ring dependency to 1.1.7
+
 ## 1.1.4 (2013-01-11)
 
 * compojure.response/render method retains metadata on responses

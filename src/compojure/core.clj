@@ -1,9 +1,14 @@
 (ns compojure.core
-  "A concise syntax for generating Ring handlers."
+  "A DSL for building Ring handlers from smaller routes.
+
+  Compojure routes are semantically the same as Ring handlers, with the
+  exception that routes may return nil to indicate they do not match.
+
+  This namespace provides functions and macros for concisely constructing
+  routes and combining them together to form more complex functions."
   (:require [clojure.string :as str])
   (:use clout.core
         compojure.response
-        [clojure.core.incubator :only (-?>)]
         [clojure.tools.macro :only (name-with-attributes)]))
 
 (defn- method-matches?
@@ -12,7 +17,8 @@
   (let [request-method (request :request-method)
         form-method    (get-in request [:form-params "_method"])]
     (if (and form-method (= request-method :post))
-      (= (str/upper-case (name method)) form-method)
+      (= (str/upper-case (name method))
+         (str/upper-case form-method))
       (= method request-method))))
 
 (defn- if-method
@@ -23,8 +29,8 @@
       (or (nil? method) (method-matches? method request))
         (handler request)
       (and (= :get method) (= :head (:request-method request)))
-        (-?> (handler request)
-             (assoc :body nil)))))
+        (if-let [response (handler request)]
+          (assoc response :body nil)))))
 
 (defn- assoc-route-params
   "Associate route parameters with the request map."
@@ -92,7 +98,7 @@
       (fn [request]
         (render (handler request) request)))))
 
-(defn- compile-route
+(defn compile-route
   "Compile a route in the form (method path & body) into a function."
   [method route bindings body]
   `(make-route
@@ -152,18 +158,22 @@
 (defn- remove-suffix [path suffix]
   (subs path 0 (- (count path) (count suffix))))
 
+(defn- path-normalize [path]
+  (path-encode (path-decode path)))
+
 (defn- wrap-context [handler]
   (fn [request]
-    (let [uri     (:uri request)
+    (let [uri     (path-normalize (:uri request))
           path    (:path-info request uri)
           context (or (:context request) "")
-          subpath (-> request :route-params :__path-info)]
+          subpath (-> request :route-params :__path-info path-encode)]
       (handler
        (-> request
-           (assoc :path-info (if (= subpath "") "/" subpath))
-           (assoc :context (remove-suffix uri subpath))
            (update-in [:params] dissoc :__path-info)
-           (update-in [:route-params] dissoc :__path-info))))))
+           (update-in [:route-params] dissoc :__path-info)
+           (assoc :uri       uri
+                  :path-info (if (= subpath "") "/" subpath)
+                  :context   (remove-suffix uri subpath)))))))
 
 (defn- context-route [route]
   (let [re-context {:__path-info #"|/.*"}]

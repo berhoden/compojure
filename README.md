@@ -9,7 +9,7 @@ applications to be composed of small, independent parts.
 
 Add the following dependency to your `project.clj` file:
 
-    [compojure "1.1.5"]
+    [compojure "1.1.8"]
 
 ## Documentation
 
@@ -43,6 +43,6 @@ Also refer to the [Getting Started][2] page on the wiki.
 
 ## License
 
-Copyright © 2013 James Reeves
+Copyright © 2014 James Reeves
 
 Distributed under the Eclipse Public License, the same as Clojure.

@@ -1,4 +1,5 @@
 (ns compojure.route
+  "Route functions that define common behavior."
   (:require [compojure.response :as response])
   (:use compojure.core
         [ring.util.response :only (file-response resource-response status)]
@@ -9,7 +10,7 @@
 
 (defn- add-wildcard
   "Add a wildcard to the end of a route path."
-  [path]
+  [^String path]
   (str path (if (.endsWith path "/") "*" "/*")))
 
 (defn files
